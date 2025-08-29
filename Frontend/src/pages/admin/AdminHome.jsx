@@ -385,7 +385,9 @@ const AdminHome = () => {
       setError("Cannot navigate: Language name is missing");
       return;
     }
-    const targetPath = `/admin/languages/${lang.name.toLowerCase()}/categories`;
+    const targetPath = `/admin/languages/${encodeURIComponent(
+      lang.name.toLowerCase()
+    )}/categories`;
     console.log(`Navigating to ${targetPath}`, lang);
     navigate(targetPath);
   };

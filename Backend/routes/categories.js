@@ -9,7 +9,7 @@ const router = express.Router();
 router.get("/languages/:languageName/categories", async (req, res) => {
   try {
     const language = await Language.findOne({
-      name: new RegExp(`^${req.params.languageName}$`, "i"),
+      name: { $regex: new RegExp(`^${req.params.languageName}$`, "i") },
     });
     if (!language) {
       console.log(`Language not found for name: ${req.params.languageName}`);
@@ -34,7 +34,7 @@ router.get(
   async (req, res) => {
     try {
       const language = await Language.findOne({
-        name: new RegExp(`^${req.params.languageName}$`, "i"),
+        name: { $regex: new RegExp(`^${req.params.languageName}$`, "i") },
       });
       if (!language) {
         console.log(`Language not found for name: ${req.params.languageName}`);
@@ -61,7 +61,7 @@ router.post(
     const { name, description } = req.body;
     try {
       const language = await Language.findOne({
-        name: new RegExp(`^${req.params.languageName}$`, "i"),
+        name: { $regex: new RegExp(`^${req.params.languageName}$`, "i") },
       });
       if (!language) {
         console.log(`Language not found for name: ${req.params.languageName}`);
@@ -91,7 +91,7 @@ router.put(
     const { name, description } = req.body;
     try {
       const language = await Language.findOne({
-        name: new RegExp(`^${req.params.languageName}$`, "i"),
+        name: { $regex: new RegExp(`^${req.params.languageName}$`, "i") },
       });
       if (!language) {
         console.log(`Language not found for name: ${req.params.languageName}`);

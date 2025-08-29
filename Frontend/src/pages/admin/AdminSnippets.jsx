@@ -3,7 +3,13 @@ import { useParams } from "react-router-dom";
 import { Plus, Trash2, Edit } from "lucide-react";
 
 const AdminSnippets = () => {
-  const { languageName, categoryName } = useParams();
+  // ✅ Correctly destructuring the language parameter as 'name' to match the frontend routes.
+  const { name, categoryName: rawCategoryName } = useParams();
+  const languageName = name ? decodeURIComponent(name) : undefined;
+  const categoryName = rawCategoryName
+    ? decodeURIComponent(rawCategoryName)
+    : undefined;
+
   const [snippets, setSnippets] = useState([]);
   const [_loading, setLoading] = useState(true);
   const [_error, setError] = useState("");
@@ -25,6 +31,13 @@ const AdminSnippets = () => {
     const fetchSnippets = async () => {
       try {
         setLoading(true);
+        // ✅ Added check for languageName and categoryName to prevent API calls with undefined values.
+        if (!languageName || !categoryName) {
+          setError("Language or category not provided in URL.");
+          setLoading(false);
+          return;
+        }
+
         const token = localStorage.getItem("token");
         const response = await fetch(
           `http://localhost:3001/api/admin/languages/${languageName}/categories/${categoryName}/snippets`,

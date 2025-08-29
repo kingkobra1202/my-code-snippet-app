@@ -81,7 +81,7 @@ const App = () => {
               }
             />
             <Route
-              path="/admin/languages/:name/categories/:categoryId/snippets"
+              path="/admin/languages/:name/categories/:categoryName/snippets"
               element={
                 <ProtectedRoute adminOnly>
                   <AdminSnippets />

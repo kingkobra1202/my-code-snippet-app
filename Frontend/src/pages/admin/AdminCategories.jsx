@@ -186,12 +186,13 @@ const AdminCategories = () => {
     }
   };
 
-  const handleCategoryClick = (categoryId) => {
+  const handleCategoryClick = (category) => {
+    const encodedCategoryName = encodeURIComponent(category.name);
     console.log(
-      `Navigating to /admin/languages/${languageName}/categories/${categoryId}/snippets`
+      `Navigating to /admin/languages/${languageName}/categories/${encodedCategoryName}/snippets`
     );
     navigate(
-      `/admin/languages/${languageName}/categories/${categoryId}/snippets`
+      `/admin/languages/${languageName}/categories/${encodedCategoryName}/snippets`
     );
   };
 
@@ -295,7 +296,7 @@ const AdminCategories = () => {
                 >
                   <div
                     className="flex-1 cursor-pointer"
-                    onClick={() => handleCategoryClick(cat._id)}
+                    onClick={() => handleCategoryClick(cat)}
                   >
                     <div className="flex items-center">
                       <div className="w-10 h-10 flex items-center justify-center rounded mr-4 bg-gradient-to-br from-blue-500 to-purple-600">
