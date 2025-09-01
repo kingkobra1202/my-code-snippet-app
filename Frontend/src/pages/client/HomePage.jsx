@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Code2, Zap, Users, ChevronRight, Star, User } from "lucide-react";
 import { isAuthenticated, logout } from "../utils/auth";
 
@@ -8,33 +9,11 @@ const HomePage = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [stats, setStats] = useState({ snippets: 0, languages: 0, users: 0 });
   const [languages, setLanguages] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [profile, setProfile] = useState(null);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  const pageTypes = [
-    {
-      id: "login-pages",
-      name: "Login Pages",
-      description: "Customizable login form designs.",
-    },
-    {
-      id: "dashboards",
-      name: "Dashboards",
-      description: "Responsive dashboard layouts.",
-    },
-    {
-      id: "buttons",
-      name: "Buttons",
-      description: "Animated and styled buttons.",
-    },
-    {
-      id: "components",
-      name: "Components",
-      description: "Reusable UI components.",
-    },
-  ];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,6 +45,29 @@ const HomePage = () => {
           setError(
             `Failed to load languages: ${
               langData.error || langResponse.statusText
+            }`
+          );
+        }
+
+        // Fetch popular categories
+        const catResponse = await fetch(
+          "http://localhost:3001/api/categories/popular"
+        );
+        const catText = await catResponse.text();
+        console.log("Categories response:", catResponse.status, catText);
+        let catData;
+        try {
+          catData = JSON.parse(catText);
+        } catch (e) {
+          console.error("Categories parse error:", e.message, catText);
+          throw new Error(`Failed to parse categories response: ${e.message}`);
+        }
+        if (catResponse.ok) {
+          setCategories(catData);
+        } else {
+          setError(
+            `Failed to load categories: ${
+              catData.error || catResponse.statusText
             }`
           );
         }
@@ -152,6 +154,13 @@ const HomePage = () => {
     return () => clearTimeout(timer);
   }, [typedText, textIndex, isDeleting]);
 
+  // Helper function to format URL names
+  const formatUrlName = (name) => {
+    return encodeURIComponent(
+      name.toLowerCase().replace(/ & /g, "-and-").replace(/ /g, "-")
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-800 font-inter text-gray-200 relative overflow-hidden">
       <nav className="fixed top-0 left-0 w-full bg-gray-900/80 backdrop-blur-sm z-50 py-4 px-4 sm:px-6 lg:px-8 shadow-md">
@@ -159,12 +168,12 @@ const HomePage = () => {
           <h1 className="text-2xl font-bold text-white">CodeSnippet</h1>
           <div className="flex items-center gap-4">
             {!isAuthenticated() ? (
-              <a
-                href="/login"
+              <Link
+                to="/login"
                 className="inline-flex items-center px-4 py-2 border-2 border-gray-500 text-gray-300 rounded-full font-semibold hover:border-pink-400 hover:text-pink-400 transition-all duration-300"
               >
                 Join Community
-              </a>
+              </Link>
             ) : (
               <div className="relative">
                 <button
@@ -225,13 +234,13 @@ const HomePage = () => {
             Learn, share, and build faster with our community-driven platform.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="/explore"
+            <Link
+              to="/explore"
               className="group inline-flex items-center px-8 py-4 bg-gradient-to-r from-orange-400 to-pink-500 text-white rounded-full font-bold shadow-lg hover:from-orange-500 hover:to-pink-600 transition-all duration-300 transform hover:scale-105"
             >
               Explore Snippets
               <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </a>
+            </Link>
           </div>
           {error && <p className="text-red-400 text-center mt-4">{error}</p>}
           {loading && (
@@ -283,13 +292,15 @@ const HomePage = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {languages.map((lang) => (
-                <a
+                <Link
                   key={lang.id}
-                  href={`/languages/${lang.name.toLowerCase()}`}
+                  to={`/languages/${formatUrlName(lang.name)}/categories`}
                   className={`group relative overflow-hidden bg-gray-700 rounded-xl p-6 text-center shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105`}
                   onClick={() =>
                     console.log(
-                      `Navigating to /languages/${lang.name.toLowerCase()}`
+                      `Navigating to /languages/${formatUrlName(
+                        lang.name
+                      )}/categories`
                     )
                   }
                 >
@@ -303,14 +314,14 @@ const HomePage = () => {
                     <h3 className="text-xl font-semibold text-white mb-1">
                       {lang.name}
                     </h3>
-                    <div className="mt-2 flex items-center text-orange-400">
+                    <div className="flex items-center text-orange-400">
                       <span className="text-sm font-medium">
                         Explore {lang.snippets} snippets
                       </span>
                       <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
-                </a>
+                </Link>
               ))}
             </div>
           )}
@@ -322,30 +333,40 @@ const HomePage = () => {
           <h2 className="text-4xl font-bold text-white text-center mb-12">
             Popular Categories
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {pageTypes.map((category, index) => (
-              <a
-                key={category.id}
-                href={`/languages/react/${category.id}`}
-                className="group relative overflow-hidden bg-gray-700 rounded-xl p-6 text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <div className="absolute top-4 right-4">
-                  <Star className="h-5 w-5 text-orange-400 opacity-50 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <h3 className="text-xl font-semibold text-white mb-2">
-                  {category.name}
-                </h3>
-                <p className="text-gray-400 text-sm mb-4">
-                  {category.description}
-                </p>
-                <div className="flex items-center text-teal-400">
-                  <span className="text-sm font-medium">View snippets</span>
-                  <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </a>
-            ))}
-          </div>
+          {categories.length === 0 && !loading && !error ? (
+            <p className="text-center text-gray-400">
+              No categories available. Please check back later.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {categories.map((category, index) => (
+                <Link
+                  key={category._id}
+                  to={`/languages/${formatUrlName(
+                    category.languageName
+                  )}/categories/${formatUrlName(category.name)}/snippets`}
+                  className="group relative overflow-hidden bg-gray-700 rounded-xl p-6 text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <div className="absolute top-4 right-4">
+                    <Star className="h-5 w-5 text-orange-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-2">
+                    {category.name}
+                  </h3>
+                  <p className="text-gray-400 text-sm mb-4">
+                    {category.description}
+                  </p>
+                  <div className="flex items-center text-teal-400">
+                    <span className="text-sm font-medium">
+                      {category.snippetCount} snippets
+                    </span>
+                    <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

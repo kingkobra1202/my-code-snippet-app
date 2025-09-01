@@ -10,6 +10,7 @@ import LoginPage from "./pages/client/LoginPage.jsx";
 import LanguageCategoriesPage from "./pages/client/LanguageCategoriesPage.jsx";
 import CategorySnippetListPage from "./pages/client/CategorySnippetListPage.jsx";
 import SnippetDetailPage from "./pages/client/SnippetDetailPage.jsx";
+import ExplorePage from "./pages/client/ExplorePage.jsx";
 
 // Admin Pages
 import AdminHome from "./pages/admin/AdminHome.jsx";
@@ -50,16 +51,17 @@ const App = () => {
             {/* Client Routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/explore" element={<ExplorePage />} />
             <Route
-              path="/languages/:name"
+              path="/languages/:name/categories"
               element={<LanguageCategoriesPage />}
             />
             <Route
-              path="/languages/:name/:categoryName"
+              path="/languages/:name/categories/:categoryName/snippets"
               element={<CategorySnippetListPage />}
             />
             <Route
-              path="/languages/:name/:categoryName/:snippetId"
+              path="/languages/:name/categories/:categoryName/snippets/:snippetId"
               element={<SnippetDetailPage />}
             />
 

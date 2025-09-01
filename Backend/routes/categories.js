@@ -1,9 +1,51 @@
 const express = require("express");
 const Category = require("../models/Category");
 const Language = require("../models/Language");
+const Snippet = require("../models/Snippet");
 const { authenticateAdmin } = require("../middleware/auth");
 
 const router = express.Router();
+
+// Get popular categories
+router.get("/categories/popular", async (req, res) => {
+  try {
+    const categories = await Category.aggregate([
+      {
+        $lookup: {
+          from: "snippets",
+          localField: "_id",
+          foreignField: "categoryId",
+          as: "snippets",
+        },
+      },
+      {
+        $lookup: {
+          from: "languages",
+          localField: "languageId",
+          foreignField: "_id",
+          as: "language",
+        },
+      },
+      { $unwind: "$language" },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          description: 1,
+          languageName: "$language.name",
+          snippetCount: { $size: "$snippets" },
+        },
+      },
+      { $sort: { snippetCount: -1 } },
+      { $limit: 4 },
+    ]);
+    console.log("Fetched popular categories:", categories);
+    res.json(categories);
+  } catch (error) {
+    console.error("Get popular categories error:", error.message);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 // Get categories by language name
 router.get("/languages/:languageName/categories", async (req, res) => {

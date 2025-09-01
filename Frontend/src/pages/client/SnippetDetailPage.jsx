@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
 import {
   Copy,
   Check,
@@ -12,6 +12,7 @@ import {
 
 const SnippetDetailPage = () => {
   const { name, categoryName, snippetId } = useParams();
+  const navigate = useNavigate(); // Initialize useNavigate
   const [snippet, setSnippet] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,7 +23,6 @@ const SnippetDetailPage = () => {
       try {
         setLoading(true);
         setError(null);
-        // Fetch a single snippet by its ID
         const response = await fetch(
           `http://localhost:3001/api/snippets/${snippetId}`
         );
@@ -95,16 +95,20 @@ const SnippetDetailPage = () => {
     );
   }
 
+  const goBack = () => {
+    navigate(-1); // This navigates back one step in the browser history
+  };
+
   return (
     <div className="min-h-screen p-8 bg-gray-900 font-inter text-gray-200">
       <div className="max-w-7xl mx-auto">
-        <Link
-          to={`/languages/${name}/${categoryName}`}
+        <button // Changed from Link to button
+          onClick={goBack} // Added onClick handler
           className="inline-flex items-center text-teal-400 hover:text-teal-300 transition-colors mb-8"
         >
           <ChevronLeft className="h-5 w-5 mr-1" />
           Back to {categoryTitle}
-        </Link>
+        </button>
         <h1 className="text-4xl md:text-5xl font-bold mb-2 capitalize">
           <span className="bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent">
             {snippet.title}

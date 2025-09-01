@@ -34,10 +34,16 @@ app.use("/api", snippetsRoutes);
 app.get("/api/snippets/:snippetId", async (req, res) => {
   try {
     const { snippetId } = req.params;
-    const snippet = await Snippet.findById(snippetId);
+    const snippet = await Snippet.findByIdAndUpdate(
+      snippetId,
+      { $inc: { views: 1 } },
+      { new: true }
+    );
     if (!snippet) {
+      console.log(`Snippet not found: ${snippetId}`);
       return res.status(404).json({ error: "Snippet not found" });
     }
+    console.log(`Fetched snippet ${snippetId}, views: ${snippet.views}`);
     res.json(snippet);
   } catch (error) {
     console.error("Error fetching snippet:", error.message);
@@ -49,11 +55,11 @@ app.get("/api/stats", async (req, res) => {
   try {
     const usersCount = await User.countDocuments();
     const languagesCount = await Language.countDocuments();
-    const categoriesCount = await Category.countDocuments();
+    const snippetsCount = await Snippet.countDocuments();
     res.json({
       users: usersCount,
       languages: languagesCount,
-      snippets: categoriesCount * 100,
+      snippets: snippetsCount,
     });
   } catch (error) {
     console.error("Stats error:", error.message);

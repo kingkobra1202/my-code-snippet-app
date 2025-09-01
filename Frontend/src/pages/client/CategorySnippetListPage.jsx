@@ -1,125 +1,106 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ChevronRight, Loader2, Frown } from "lucide-react";
+import { Code2, ChevronRight } from "lucide-react";
 
 const CategorySnippetListPage = () => {
   const { name, categoryName } = useParams();
   const [snippets, setSnippets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
+
+  // Decode URL parameters
+  const decodedLanguageName = decodeURIComponent(name)
+    .replace(/-and-/g, " & ")
+    .replace(/-/g, " ");
+  const decodedCategoryName = decodeURIComponent(categoryName)
+    .replace(/-and-/g, " & ")
+    .replace(/-/g, " ");
 
   useEffect(() => {
     const fetchSnippets = async () => {
+      setLoading(true);
+      setError("");
       try {
-        setLoading(true);
-        setError(null);
-        // Correctly handle encoded URLs by decoding them
-        const decodedLanguageName = decodeURIComponent(name);
-        const decodedCategoryName = decodeURIComponent(categoryName);
-
-        // Fetch data from your backend API
         const response = await fetch(
-          `http://localhost:3001/api/languages/${decodedLanguageName}/categories/${decodedCategoryName}/snippets`
+          `http://localhost:3001/api/languages/${encodeURIComponent(
+            decodedLanguageName
+          )}/categories/${encodeURIComponent(decodedCategoryName)}/snippets`
         );
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to fetch snippets.");
-        }
-
         const data = await response.json();
+        if (!response.ok)
+          throw new Error(data.error || "Failed to load snippets");
         setSnippets(data);
       } catch (err) {
-        console.error("Fetch snippets error:", err);
-        setError("Failed to load snippets. Please try again later.");
+        console.error("Fetch error:", err.message);
+        setError(`Error: ${err.message}`);
       } finally {
         setLoading(false);
       }
     };
-
     fetchSnippets();
-  }, [name, categoryName]);
+  }, [decodedLanguageName, decodedCategoryName]);
 
-  const categoryTitle = decodeURIComponent(categoryName).replace(/-/g, " ");
-
-  // Render different states based on data fetching status
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-gray-900 font-inter text-gray-200">
-        <Loader2 className="animate-spin h-12 w-12 text-teal-400 mb-4" />
-        <p className="text-xl">Loading snippets...</p>
-      </div>
+  const formatUrlName = (name) => {
+    return encodeURIComponent(
+      name.toLowerCase().replace(/ & /g, "-and-").replace(/ /g, "-")
     );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-gray-900 font-inter text-gray-200">
-        <Frown className="h-12 w-12 text-red-400 mb-4" />
-        <p className="text-xl text-center">{error}</p>
-        <p className="text-sm text-gray-500 mt-2">
-          Make sure your backend server is running.
-        </p>
-      </div>
-    );
-  }
+  };
 
   return (
-    <div className="min-h-screen p-8 bg-gray-900 font-inter text-gray-200">
-      <div className="max-w-7xl mx-auto mb-8 text-center">
-        {/* Updated heading with a new gradient */}
-        <h1 className="text-4xl md:text-5xl font-bold mb-2 capitalize">
-          <span className="bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent">
-            {categoryTitle}
-          </span>
+    <div className="min-h-screen bg-gray-800 font-inter text-gray-200 py-20 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-4xl font-bold text-white mb-8 text-center">
+          Snippets for {decodedCategoryName} in {decodedLanguageName}
         </h1>
-        <p className="text-lg text-gray-300 mb-4">
-          Browse and select a snippet to view its code and details.
-        </p>
+        {error && <p className="text-red-400 text-center mb-4">{error}</p>}
+        {loading && (
+          <p className="text-gray-400 text-center mb-4">Loading snippets...</p>
+        )}
+        {snippets.length === 0 && !loading && !error ? (
+          <p className="text-center text-gray-400">No snippets found.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {snippets.map((snippet) => (
+              <Link
+                key={snippet._id}
+                to={`/languages/${formatUrlName(
+                  decodedLanguageName
+                )}/categories/${formatUrlName(decodedCategoryName)}/snippets/${
+                  snippet._id
+                }`}
+                className="group bg-gray-700 rounded-xl p-6 shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2"
+              >
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 flex items-center justify-center bg-gray-800 rounded-full mr-4">
+                    <Code2 className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-white">
+                      {snippet.title}
+                    </h3>
+                    <p className="text-gray-400 text-sm">
+                      {snippet.description}
+                    </p>
+                  </div>
+                </div>
+                {snippet.previewImage && (
+                  <img
+                    src={snippet.previewImage}
+                    alt={snippet.title}
+                    className="w-full h-32 object-cover rounded-lg mb-4"
+                  />
+                )}
+                <div className="flex items-center text-orange-400">
+                  <span className="text-sm font-medium">
+                    {snippet.languageName} - {snippet.categoryName}
+                  </span>
+                  <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
-
-      {snippets.length === 0 ? (
-        <div className="flex flex-col items-center justify-center p-12 bg-gray-800 rounded-2xl max-w-lg mx-auto text-center shadow-lg">
-          <Frown className="h-16 w-16 text-yellow-500 mb-4" />
-          <p className="text-xl font-semibold text-white mb-2">
-            No Snippets Found
-          </p>
-          <p className="text-gray-400">
-            It looks like there are no snippets for this category yet.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {snippets.map((snippet) => (
-            <Link
-              key={snippet._id}
-              to={`/languages/${name}/${categoryName}/${snippet._id}`}
-              className="cursor-pointer group relative overflow-hidden bg-gray-800 rounded-2xl p-4 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
-            >
-              <img
-                src={
-                  snippet.previewImage ||
-                  "https://placehold.co/400x200/2f3a4b/ffffff?text=Image+Not+Available"
-                }
-                alt={snippet.title}
-                className="w-full h-48 object-cover rounded-lg mb-4 group-hover:scale-110 transition-transform duration-300"
-                onError={(e) =>
-                  (e.target.src =
-                    "https://placehold.co/400x200/2f3a4b/ffffff?text=Image+Not+Available")
-                }
-              />
-              <h3 className="text-xl font-semibold text-white mb-2">
-                {snippet.title}
-              </h3>
-              <p className="text-gray-400 text-sm">{snippet.description}</p>
-              <div className="mt-4 flex items-center text-teal-400">
-                <span className="text-sm font-medium">View Details</span>
-                <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
     </div>
   );
 };

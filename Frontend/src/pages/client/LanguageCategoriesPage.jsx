@@ -8,18 +8,25 @@ const LanguageCategoriesPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Decode URL parameter for display
+  const decodedLanguageName = decodeURIComponent(languageName)
+    .replace(/-and-/g, " & ")
+    .replace(/-/g, " ");
+
   useEffect(() => {
     const fetchCategories = async () => {
       setLoading(true);
       setError("");
       try {
-        console.log(`Fetching categories for language: ${languageName}`);
+        console.log(`Fetching categories for language: ${decodedLanguageName}`);
         const response = await fetch(
-          `http://localhost:3001/api/languages/${languageName}/categories`
+          `http://localhost:3001/api/languages/${encodeURIComponent(
+            decodedLanguageName
+          )}/categories`
         );
         const text = await response.text();
         console.log(
-          `Categories response for ${languageName}:`,
+          `Categories response for ${decodedLanguageName}:`,
           response.status,
           text
         );
@@ -43,13 +50,20 @@ const LanguageCategoriesPage = () => {
       }
     };
     fetchCategories();
-  }, [languageName]);
+  }, [decodedLanguageName]);
+
+  // Helper function to format URL names
+  const formatUrlName = (name) => {
+    return encodeURIComponent(
+      name.toLowerCase().replace(/ & /g, "-and-").replace(/ /g, "-")
+    );
+  };
 
   return (
     <div className="min-h-screen p-8 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 font-inter text-white">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-5xl font-bold mb-8">
-          Categories for {languageName}
+          Categories for {decodedLanguageName}
         </h1>
         {error && <p className="text-red-400 mb-4">{error}</p>}
         {loading && <p className="text-gray-400 mb-4">Loading...</p>}
@@ -65,14 +79,17 @@ const LanguageCategoriesPage = () => {
           <h2 className="text-3xl font-semibold mb-6">Categories</h2>
           {categories.length === 0 && !loading && !error ? (
             <p className="text-center text-gray-400">
-              No categories available for {languageName}. Check back later.
+              No categories available for {decodedLanguageName}. Check back
+              later.
             </p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {categories.map((cat) => (
                 <Link
                   key={cat._id}
-                  to={`/languages/${languageName}/${cat.name.toLowerCase()}`}
+                  to={`/languages/${formatUrlName(
+                    decodedLanguageName
+                  )}/categories/${formatUrlName(cat.name)}/snippets`}
                   className="group bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 flex justify-between items-center hover:bg-slate-700/50 transition-all transform hover:scale-105"
                 >
                   <div className="flex items-center flex-1">

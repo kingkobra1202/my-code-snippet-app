@@ -6,6 +6,31 @@ const { authenticateAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 
+// Get snippets with filters and sorting
+router.get("/snippets", async (req, res) => {
+  try {
+    const { language, category, sortBy } = req.query;
+    const query = {};
+    if (language) {
+      query.languageName = { $regex: new RegExp(`^${language}$`, "i") };
+    }
+    if (category) {
+      query.categoryName = { $regex: new RegExp(`^${category}$`, "i") };
+    }
+    const sort = sortBy === "views" ? { views: -1 } : { createdAt: -1 };
+    const snippets = await Snippet.find(query).sort(sort).limit(12);
+    console.log(
+      `Fetched snippets with query ${JSON.stringify(req.query)}:`,
+      snippets
+    );
+    res.json(snippets);
+  } catch (error) {
+    console.error("Get snippets error:", error.message);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Get snippets by language and category
 router.get(
   "/languages/:languageName/categories/:categoryName/snippets",
   async (req, res) => {
@@ -40,6 +65,7 @@ router.get(
   }
 );
 
+// Admin: Get snippets by language and category
 router.get(
   "/admin/languages/:languageName/categories/:categoryName/snippets",
   authenticateAdmin,
@@ -75,6 +101,7 @@ router.get(
   }
 );
 
+// Admin: Add snippet
 router.post(
   "/admin/languages/:languageName/categories/:categoryName/snippets",
   authenticateAdmin,
@@ -121,6 +148,7 @@ router.post(
   }
 );
 
+// Admin: Update snippet
 router.put(
   "/admin/languages/:languageName/categories/:categoryName/snippets/:snippetId",
   authenticateAdmin,
@@ -175,6 +203,7 @@ router.put(
   }
 );
 
+// Admin: Delete snippet
 router.delete(
   "/admin/languages/:languageName/categories/:categoryName/snippets/:snippetId",
   authenticateAdmin,
