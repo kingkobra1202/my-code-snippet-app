@@ -6,7 +6,6 @@ const { authenticateAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 
-// Get snippets by language name and category name
 router.get(
   "/languages/:languageName/categories/:categoryName/snippets",
   async (req, res) => {
@@ -41,7 +40,6 @@ router.get(
   }
 );
 
-// Admin: Get snippets by language name and category name
 router.get(
   "/admin/languages/:languageName/categories/:categoryName/snippets",
   authenticateAdmin,
@@ -77,12 +75,12 @@ router.get(
   }
 );
 
-// Admin: Add snippet
 router.post(
   "/admin/languages/:languageName/categories/:categoryName/snippets",
   authenticateAdmin,
   async (req, res) => {
     const { title, description, code, previewImage, demoLink } = req.body;
+    console.log(previewImage);
     try {
       const language = await Language.findOne({
         name: { $regex: new RegExp(`^${req.params.languageName}$`, "i") },
@@ -123,7 +121,6 @@ router.post(
   }
 );
 
-// Admin: Update snippet
 router.put(
   "/admin/languages/:languageName/categories/:categoryName/snippets/:snippetId",
   authenticateAdmin,
@@ -178,7 +175,6 @@ router.put(
   }
 );
 
-// Admin: Delete snippet
 router.delete(
   "/admin/languages/:languageName/categories/:categoryName/snippets/:snippetId",
   authenticateAdmin,

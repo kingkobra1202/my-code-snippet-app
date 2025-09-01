@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Plus, Trash2, Edit } from "lucide-react";
+import { toast, Toaster } from "react-hot-toast";
 
 const AdminSnippets = () => {
-  // ✅ Correctly destructuring the language parameter as 'name' to match the frontend routes.
   const { name, categoryName: rawCategoryName } = useParams();
   const languageName = name ? decodeURIComponent(name) : undefined;
   const categoryName = rawCategoryName
@@ -11,27 +11,24 @@ const AdminSnippets = () => {
     : undefined;
 
   const [snippets, setSnippets] = useState([]);
-  const [_loading, setLoading] = useState(true);
-  const [_error, setError] = useState("");
-
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [newSnippet, setNewSnippet] = useState({
     title: "",
     description: "",
     code: "",
-    previewImage: "",
     demoLink: "",
+    previewImage: "", // Changed to a string for the URL
   });
   const [editSnippet, setEditSnippet] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [snippetToDelete, setSnippetToDelete] = useState(null);
 
-  // Fetch snippets from backend API
   useEffect(() => {
     const fetchSnippets = async () => {
       try {
         setLoading(true);
-        // ✅ Added check for languageName and categoryName to prevent API calls with undefined values.
         if (!languageName || !categoryName) {
           setError("Language or category not provided in URL.");
           setLoading(false);
@@ -68,9 +65,13 @@ const AdminSnippets = () => {
 
   const handleAddSnippet = async (e) => {
     e.preventDefault();
-    if (!newSnippet.title || !newSnippet.code) return;
+    if (!newSnippet.title || !newSnippet.code || !newSnippet.previewImage) {
+      toast.error("Please fill all required fields and provide an image URL.");
+      return;
+    }
 
     try {
+      setLoading(true);
       const token = localStorage.getItem("token");
       const response = await fetch(
         `http://localhost:3001/api/admin/languages/${languageName}/categories/${categoryName}/snippets`,
@@ -94,21 +95,29 @@ const AdminSnippets = () => {
         title: "",
         description: "",
         code: "",
-        previewImage: "",
         demoLink: "",
+        previewImage: "",
       });
       setError("");
+      toast.success("Snippet added successfully!");
     } catch (err) {
       console.error("Error adding snippet:", err);
       setError("Failed to add snippet");
+      toast.error("Failed to add snippet.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleEditSnippet = async (e) => {
     e.preventDefault();
-    if (!editSnippet.title || !editSnippet.code) return;
+    if (!editSnippet.title || !editSnippet.code || !editSnippet.previewImage) {
+      toast.error("Please fill all required fields and provide an image URL.");
+      return;
+    }
 
     try {
+      setLoading(true);
       const token = localStorage.getItem("token");
       const response = await fetch(
         `http://localhost:3001/api/admin/languages/${languageName}/categories/${categoryName}/snippets/${editSnippet._id}`,
@@ -133,9 +142,13 @@ const AdminSnippets = () => {
       setIsEditModalOpen(false);
       setEditSnippet(null);
       setError("");
+      toast.success("Snippet updated successfully!");
     } catch (err) {
       console.error("Error updating snippet:", err);
       setError("Failed to update snippet");
+      toast.error("Failed to update snippet.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -160,9 +173,11 @@ const AdminSnippets = () => {
       setIsDeleteModalOpen(false);
       setSnippetToDelete(null);
       setError("");
+      toast.success("Snippet deleted successfully!");
     } catch (err) {
       console.error("Error deleting snippet:", err);
       setError("Failed to delete snippet");
+      toast.error("Failed to delete snippet.");
     }
   };
 
@@ -178,6 +193,7 @@ const AdminSnippets = () => {
 
   return (
     <div className="min-h-screen p-8 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 font-inter text-white">
+      <Toaster />
       <div className="max-w-7xl mx-auto">
         <h1 className="text-5xl font-bold mb-8">
           Manage Snippets for {categoryName}
@@ -212,15 +228,28 @@ const AdminSnippets = () => {
               className="p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 transition-all col-span-2"
               rows="5"
             />
-            <input
-              type="text"
-              placeholder="Preview Image URL"
-              value={newSnippet.previewImage}
-              onChange={(e) =>
-                setNewSnippet({ ...newSnippet, previewImage: e.target.value })
-              }
-              className="p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 transition-all"
-            />
+            <div className="flex flex-col">
+              <label htmlFor="add-image" className="text-gray-400 text-sm mb-1">
+                Preview Image URL
+              </label>
+              <input
+                id="add-image"
+                type="text"
+                placeholder="Paste Appwrite Image URL here"
+                value={newSnippet.previewImage}
+                onChange={(e) =>
+                  setNewSnippet({ ...newSnippet, previewImage: e.target.value })
+                }
+                className="p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 transition-all"
+              />
+              {newSnippet.previewImage && (
+                <img
+                  src={newSnippet.previewImage}
+                  alt="Preview"
+                  className="mt-2 w-full h-32 object-cover rounded-lg"
+                />
+              )}
+            </div>
             <input
               type="text"
               placeholder="Video Demo URL (optional)"
@@ -272,7 +301,6 @@ const AdminSnippets = () => {
           ))}
         </div>
 
-        {/* Edit Modal */}
         {isEditModalOpen && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-slate-800/80 backdrop-blur-sm p-6 rounded-2xl max-w-2xl w-full">
@@ -308,18 +336,34 @@ const AdminSnippets = () => {
                   className="p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 transition-all col-span-2"
                   rows="5"
                 />
-                <input
-                  type="text"
-                  placeholder="Preview Image URL"
-                  value={editSnippet.previewImage}
-                  onChange={(e) =>
-                    setEditSnippet({
-                      ...editSnippet,
-                      previewImage: e.target.value,
-                    })
-                  }
-                  className="p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 transition-all"
-                />
+                <div className="flex flex-col">
+                  <label
+                    htmlFor="edit-image"
+                    className="text-gray-400 text-sm mb-1"
+                  >
+                    Preview Image URL
+                  </label>
+                  <input
+                    id="edit-image"
+                    type="text"
+                    placeholder="Paste Appwrite Image URL here"
+                    value={editSnippet.previewImage}
+                    onChange={(e) =>
+                      setEditSnippet({
+                        ...editSnippet,
+                        previewImage: e.target.value,
+                      })
+                    }
+                    className="p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 transition-all"
+                  />
+                  {editSnippet.previewImage && (
+                    <img
+                      src={editSnippet.previewImage}
+                      alt="Preview"
+                      className="mt-2 w-full h-32 object-cover rounded-lg"
+                    />
+                  )}
+                </div>
                 <input
                   type="text"
                   placeholder="Video Demo URL (optional)"
@@ -348,7 +392,6 @@ const AdminSnippets = () => {
           </div>
         )}
 
-        {/* Delete Modal */}
         {isDeleteModalOpen && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-slate-800/80 backdrop-blur-sm p-6 rounded-2xl max-w-md w-full">
