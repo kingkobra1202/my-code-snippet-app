@@ -1,6 +1,7 @@
 {
   "name": "my-code-snippet-app",
   "private": true,
+  "homepage":"https://kingkobra1202.github.io/my-code-snippet-app/Frontend/",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
