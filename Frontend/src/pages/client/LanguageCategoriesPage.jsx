@@ -8,6 +8,8 @@ const LanguageCategoriesPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const API_BASE = import.meta.env.VITE_API_URL;
+
   // Decode URL parameter for display
   const decodedLanguageName = decodeURIComponent(languageName)
     .replace(/-and-/g, " & ")
@@ -20,7 +22,7 @@ const LanguageCategoriesPage = () => {
       try {
         console.log(`Fetching categories for language: ${decodedLanguageName}`);
         const response = await fetch(
-          `http://localhost:3001/api/languages/${encodeURIComponent(
+          `${API_BASE}/api/languages/${encodeURIComponent(
             decodedLanguageName
           )}/categories`
         );

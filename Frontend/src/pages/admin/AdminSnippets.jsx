@@ -25,6 +25,8 @@ const AdminSnippets = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [snippetToDelete, setSnippetToDelete] = useState(null);
 
+  const API_BASE = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     const fetchSnippets = async () => {
       try {
@@ -37,7 +39,7 @@ const AdminSnippets = () => {
 
         const token = localStorage.getItem("token");
         const response = await fetch(
-          `http://localhost:3001/api/admin/languages/${languageName}/categories/${categoryName}/snippets`,
+          `${API_BASE}/api/admin/languages/${languageName}/categories/${categoryName}/snippets`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -74,7 +76,7 @@ const AdminSnippets = () => {
       setLoading(true);
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:3001/api/admin/languages/${languageName}/categories/${categoryName}/snippets`,
+        `${API_BASE}/api/admin/languages/${languageName}/categories/${categoryName}/snippets`,
         {
           method: "POST",
           headers: {
@@ -120,7 +122,7 @@ const AdminSnippets = () => {
       setLoading(true);
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:3001/api/admin/languages/${languageName}/categories/${categoryName}/snippets/${editSnippet._id}`,
+        `${API_BASE}/api/admin/languages/${languageName}/categories/${categoryName}/snippets/${editSnippet._id}`,
         {
           method: "PUT",
           headers: {
@@ -156,7 +158,7 @@ const AdminSnippets = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:3001/api/admin/languages/${languageName}/categories/${categoryName}/snippets/${id}`,
+        `${API_BASE}/api/admin/languages/${languageName}/categories/${categoryName}/snippets/${id}`,
         {
           method: "DELETE",
           headers: {

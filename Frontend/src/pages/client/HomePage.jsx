@@ -14,16 +14,25 @@ const HomePage = () => {
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [auth, setAuth] = useState(isAuthenticated());
+
+  const API_BASE = import.meta.env.VITE_API_URL;
+
+  useEffect(() => {
+    setAuth(isAuthenticated());
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setError("");
+
       try {
-        // Fetch languages
-        const langResponse = await fetch("http://localhost:3001/api/languages");
+        // ------------------ Fetch languages ------------------
+        const langResponse = await fetch("${API_BASE}/api/languages");
         const langText = await langResponse.text();
         console.log("Languages response:", langResponse.status, langText);
+
         let langData;
         try {
           langData = JSON.parse(langText);
@@ -31,6 +40,7 @@ const HomePage = () => {
           console.error("Languages parse error:", e.message, langText);
           throw new Error(`Failed to parse languages response: ${e.message}`);
         }
+
         if (langResponse.ok) {
           setLanguages(
             langData.map((lang) => ({
@@ -49,12 +59,11 @@ const HomePage = () => {
           );
         }
 
-        // Fetch popular categories
-        const catResponse = await fetch(
-          "http://localhost:3001/api/categories/popular"
-        );
+        // ------------------ Fetch categories ------------------
+        const catResponse = await fetch("${API_BASE}/api/categories/popular");
         const catText = await catResponse.text();
         console.log("Categories response:", catResponse.status, catText);
+
         let catData;
         try {
           catData = JSON.parse(catText);
@@ -62,6 +71,7 @@ const HomePage = () => {
           console.error("Categories parse error:", e.message, catText);
           throw new Error(`Failed to parse categories response: ${e.message}`);
         }
+
         if (catResponse.ok) {
           setCategories(catData);
         } else {
@@ -72,10 +82,11 @@ const HomePage = () => {
           );
         }
 
-        // Fetch stats
-        const statsResponse = await fetch("http://localhost:3001/api/stats");
+        // ------------------ Fetch stats ------------------
+        const statsResponse = await fetch("${API_BASE}/api/stats");
         const statsText = await statsResponse.text();
         console.log("Stats response:", statsResponse.status, statsText);
+
         let statsData;
         try {
           statsData = JSON.parse(statsText);
@@ -83,6 +94,7 @@ const HomePage = () => {
           console.error("Stats parse error:", e.message, statsText);
           throw new Error(`Failed to parse stats response: ${e.message}`);
         }
+
         if (statsResponse.ok) {
           setStats(statsData);
         } else {
@@ -93,44 +105,52 @@ const HomePage = () => {
           );
         }
 
-        // Fetch profile if authenticated
-        if (isAuthenticated()) {
-          const token = localStorage.getItem("token");
-          const profileResponse = await fetch(
-            "http://localhost:3001/api/profile",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-          const profileText = await profileResponse.text();
-          console.log("Profile response:", profileResponse.status, profileText);
-          let profileData;
+        // ------------------ Fetch profile (only if logged in) ------------------
+        // ------------------ Fetch profile (safe version) ------------------
+        const token = localStorage.getItem("token");
+
+        if (token) {
           try {
-            profileData = JSON.parse(profileText);
-          } catch (e) {
-            console.error("Profile parse error:", e.message, profileText);
-            throw new Error(`Failed to parse profile response: ${e.message}`);
-          }
-          if (profileResponse.ok) {
-            setProfile(profileData);
-          } else {
-            setError(
-              `Failed to load profile: ${
-                profileData.error || profileResponse.statusText
-              }`
+            const profileResponse = await fetch("${API_BASE}/api/profile", {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+
+            const profileText = await profileResponse.text();
+            console.log(
+              "Profile response:",
+              profileResponse.status,
+              profileText
             );
+
+            let profileData;
+            try {
+              profileData = JSON.parse(profileText);
+            } catch (e) {
+              console.error("Profile parse error:", e.message, profileText);
+              throw new Error(`Failed to parse profile response: ${e.message}`);
+            }
+
+            if (profileResponse.ok) {
+              setProfile(profileData);
+            } else {
+              setError(
+                `Failed to load profile: ${
+                  profileData.error || profileResponse.statusText
+                }`
+              );
+            }
+          } catch (e) {
+            console.error("Profile fetch error:", e.message);
+            setError(`Error loading profile: ${e.message}`);
           }
         }
-      } catch (error) {
-        console.error("Fetch error:", error.message);
-        setError(`Server error: ${error.message}. Please try again.`);
       } finally {
         setLoading(false);
       }
     };
-    fetchData();
-  }, []);
 
+    fetchData();
+  }, []); // IMPORTANT: refetch only when auth changes
   useEffect(() => {
     const words = ["Code Snippets", "Programming Solutions", "Developer Tools"];
     const timer = setTimeout(
