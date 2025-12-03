@@ -16,6 +16,8 @@ const HomePage = () => {
   const [error, setError] = useState("");
   const [auth, setAuth] = useState(isAuthenticated());
 
+  const API_BASE = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     setAuth(isAuthenticated());
   }, []);
@@ -27,7 +29,7 @@ const HomePage = () => {
 
       try {
         // ------------------ Fetch languages ------------------
-        const langResponse = await fetch("http://localhost:3001/api/languages");
+        const langResponse = await fetch("${API_BASE}/api/languages");
         const langText = await langResponse.text();
         console.log("Languages response:", langResponse.status, langText);
 
@@ -58,9 +60,7 @@ const HomePage = () => {
         }
 
         // ------------------ Fetch categories ------------------
-        const catResponse = await fetch(
-          "http://localhost:3001/api/categories/popular"
-        );
+        const catResponse = await fetch("${API_BASE}/api/categories/popular");
         const catText = await catResponse.text();
         console.log("Categories response:", catResponse.status, catText);
 
@@ -83,7 +83,7 @@ const HomePage = () => {
         }
 
         // ------------------ Fetch stats ------------------
-        const statsResponse = await fetch("http://localhost:3001/api/stats");
+        const statsResponse = await fetch("${API_BASE}/api/stats");
         const statsText = await statsResponse.text();
         console.log("Stats response:", statsResponse.status, statsText);
 
@@ -111,12 +111,9 @@ const HomePage = () => {
 
         if (token) {
           try {
-            const profileResponse = await fetch(
-              "http://localhost:3001/api/profile",
-              {
-                headers: { Authorization: `Bearer ${token}` },
-              }
-            );
+            const profileResponse = await fetch("${API_BASE}/api/profile", {
+              headers: { Authorization: `Bearer ${token}` },
+            });
 
             const profileText = await profileResponse.text();
             console.log(

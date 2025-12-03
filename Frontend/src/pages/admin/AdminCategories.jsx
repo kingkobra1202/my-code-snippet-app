@@ -3,6 +3,8 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { FaPlus, FaTrash, FaEdit, FaTimes, FaCode } from "react-icons/fa";
 import { isAuthenticated, getRole } from "../utils/auth";
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 const AdminCategories = () => {
   const { name: rawLanguageName } = useParams();
   const languageName = rawLanguageName
@@ -37,7 +39,7 @@ const AdminCategories = () => {
     try {
       console.log(`Fetching categories for language: ${languageName}`);
       const response = await fetch(
-        `http://localhost:3001/api/admin/languages/${languageName}/categories`,
+        `${API_BASE}/api/admin/languages/${languageName}/categories`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -97,7 +99,7 @@ const AdminCategories = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:3001/api/admin/languages/${languageName}/categories`,
+        `${API_BASE}/api/admin/languages/${languageName}/categories`,
         {
           method: "POST",
           headers: {
@@ -131,7 +133,7 @@ const AdminCategories = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:3001/api/admin/languages/${languageName}/categories/${editCategory.id}`,
+        `${API_BASE}/api/admin/languages/${languageName}/categories/${editCategory.id}`,
         {
           method: "PUT",
           headers: {
@@ -165,7 +167,7 @@ const AdminCategories = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:3001/api/admin/languages/${languageName}/categories/${id}`,
+        `${API_BASE}/api/admin/languages/${languageName}/categories/${id}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },

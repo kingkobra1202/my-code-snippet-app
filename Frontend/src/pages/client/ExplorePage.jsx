@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Code2, ChevronRight } from "lucide-react";
 
 const ExplorePage = () => {
@@ -10,7 +10,8 @@ const ExplorePage = () => {
   const [sortBy, setSortBy] = useState("recent");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
+
+  const API_BASE = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -18,7 +19,7 @@ const ExplorePage = () => {
       setError("");
       try {
         // Fetch languages
-        const langResponse = await fetch("http://localhost:3001/api/languages");
+        const langResponse = await fetch("${API_BASE}/api/languages");
         const langData = await langResponse.json();
         if (!langResponse.ok)
           throw new Error(langData.error || "Failed to load languages");
@@ -26,7 +27,7 @@ const ExplorePage = () => {
 
         // Fetch categories
         const catResponse = await fetch(
-          "http://localhost:3001/api/languages/react/categories"
+          "${API_BASE}/api/languages/react/categories"
         );
         const catData = await catResponse.json();
         if (!catResponse.ok)
@@ -35,7 +36,7 @@ const ExplorePage = () => {
 
         // Fetch snippets
         const snippetsResponse = await fetch(
-          `http://localhost:3001/api/snippets?sortBy=${sortBy}${
+          `${API_BASE}/api/snippets?sortBy=${sortBy}${
             filters.language ? `&language=${filters.language}` : ""
           }${filters.category ? `&category=${filters.category}` : ""}`
         );

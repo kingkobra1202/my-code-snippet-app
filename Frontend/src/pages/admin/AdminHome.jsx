@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 const isAuthenticated = () => localStorage.getItem("token") !== null;
 const getRole = () => localStorage.getItem("role") || "user";
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 // Inline SVG Icons (unchanged from your provided code)
 const PlusIcon = ({ className }) => (
   <svg
@@ -173,12 +175,9 @@ const AdminHome = () => {
 
     try {
       console.log("Attempting to fetch languages...");
-      const langResponse = await fetch(
-        "http://localhost:3001/api/admin/languages",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const langResponse = await fetch("${API_BASE}/api/admin/languages", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const langText = await langResponse.text();
       console.log("Admin languages response:", langResponse.status, langText);
       let langData;
@@ -206,7 +205,7 @@ const AdminHome = () => {
       }
 
       console.log("Attempting to fetch stats...");
-      const statsResponse = await fetch("http://localhost:3001/api/stats");
+      const statsResponse = await fetch("${API_BASE}/api/stats");
       const statsText =
         statsResponse.status === 204 ? "{}" : await statsResponse.text();
       console.log("Stats response:", statsResponse.status, statsText);
@@ -226,12 +225,9 @@ const AdminHome = () => {
       }
 
       console.log("Attempting to fetch users...");
-      const usersResponse = await fetch(
-        "http://localhost:3001/api/admin/users",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const usersResponse = await fetch("${API_BASE}/api/admin/users", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const usersText =
         usersResponse.status === 204 ? "[]" : await usersResponse.text();
       console.log("Users response:", usersResponse.status, usersText);
@@ -280,17 +276,14 @@ const AdminHome = () => {
     }
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        "http://localhost:3001/api/admin/languages",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(newLanguage),
-        }
-      );
+      const response = await fetch("${API_BASE}/api/admin/languages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newLanguage),
+      });
       const data = await response.json();
       console.log("Add language response:", response.status, data);
       if (response.ok) {
@@ -318,7 +311,7 @@ const AdminHome = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:3001/api/admin/languages/${editLanguage.id}`,
+        `${API_BASE}/api/admin/languages/${editLanguage.id}`,
         {
           method: "PUT",
           headers: {
@@ -355,13 +348,10 @@ const AdminHome = () => {
   const handleDeleteLanguage = async (id) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        `http://localhost:3001/api/admin/languages/${id}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await fetch(`${API_BASE}/api/admin/languages/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = await response.json();
       console.log("Delete language response:", response.status, data);
       if (response.ok) {

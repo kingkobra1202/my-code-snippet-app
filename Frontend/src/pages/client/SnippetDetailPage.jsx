@@ -11,21 +11,21 @@ import {
 } from "lucide-react";
 
 const SnippetDetailPage = () => {
-  const { name, categoryName, snippetId } = useParams();
+  const { categoryName, snippetId } = useParams();
   const navigate = useNavigate(); // Initialize useNavigate
   const [snippet, setSnippet] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
 
+  const API_BASE = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     const fetchSnippet = async () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(
-          `http://localhost:3001/api/snippets/${snippetId}`
-        );
+        const response = await fetch(`${API_BASE}/api/snippets/${snippetId}`);
 
         if (!response.ok) {
           throw new Error("Failed to fetch snippet details.");

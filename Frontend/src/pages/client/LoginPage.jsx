@@ -3,6 +3,8 @@ import { ArrowRight, Lock, Mail, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { isAuthenticated, getRole } from "../utils/auth";
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 // Google Icon SVG component
 const GoogleIcon = () => (
   <svg
@@ -54,7 +56,7 @@ const LoginForm = ({
     setError("");
     setSuccess("");
     try {
-      const response = await fetch("http://localhost:3001/api/login", {
+      const response = await fetch("${API_BASE}/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -151,7 +153,7 @@ const RegisterForm = ({
     setError("");
     setSuccess("");
     try {
-      const response = await fetch("http://localhost:3001/api/register", {
+      const response = await fetch("${API_BASE}/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
