@@ -5,3 +5,18 @@ user can see the snippet details only when it login on the site
 add functionality like use feedbacks
 
 fully advance is the user also can add their snippets
+
+in this code i im implementing the snippet add functionalityu
+
+means form this page i can add the snippet details collection for the specific language and their categories
+
+this perform very well "
+but in this add collection when i add there is one field that is image
+
+so i use the appwrite database to store the imasges and when image is storre the appwrite provide one image link so store this link in the field of the image
+
+means on this home page i want the image selection Jese kuch files select karte vakt file exploral khulta he
+
+vese to mene ye implement kiya tha lekin kuch issues ki vajah se mene vo firse remove karke direct link add karne ka option revert kar diya
+
+so now again i want you implement this functionality to add image on the aappw
