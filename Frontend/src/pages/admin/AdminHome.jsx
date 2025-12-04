@@ -175,7 +175,7 @@ const AdminHome = () => {
 
     try {
       console.log("Attempting to fetch languages...");
-      const langResponse = await fetch("${API_BASE}/api/admin/languages", {
+      const langResponse = await fetch(`${API_BASE}/api/admin/languages`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const langText = await langResponse.text();
@@ -205,7 +205,7 @@ const AdminHome = () => {
       }
 
       console.log("Attempting to fetch stats...");
-      const statsResponse = await fetch("${API_BASE}/api/stats");
+      const statsResponse = await fetch(`${API_BASE}/api/stats`);
       const statsText =
         statsResponse.status === 204 ? "{}" : await statsResponse.text();
       console.log("Stats response:", statsResponse.status, statsText);
@@ -225,7 +225,7 @@ const AdminHome = () => {
       }
 
       console.log("Attempting to fetch users...");
-      const usersResponse = await fetch("${API_BASE}/api/admin/users", {
+      const usersResponse = await fetch(`${API_BASE}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const usersText =
@@ -276,7 +276,7 @@ const AdminHome = () => {
     }
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("${API_BASE}/api/admin/languages", {
+      const response = await fetch(`${API_BASE}/api/admin/languages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

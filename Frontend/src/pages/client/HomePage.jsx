@@ -29,7 +29,7 @@ const HomePage = () => {
 
       try {
         // ------------------ Fetch languages ------------------
-        const langResponse = await fetch("${API_BASE}/api/languages");
+        const langResponse = await fetch(`${API_BASE}/api/languages`);
         const langText = await langResponse.text();
         console.log("Languages response:", langResponse.status, langText);
 
@@ -60,7 +60,7 @@ const HomePage = () => {
         }
 
         // ------------------ Fetch categories ------------------
-        const catResponse = await fetch("${API_BASE}/api/categories/popular");
+        const catResponse = await fetch(`${API_BASE}/api/categories/popular`);
         const catText = await catResponse.text();
         console.log("Categories response:", catResponse.status, catText);
 
@@ -83,7 +83,7 @@ const HomePage = () => {
         }
 
         // ------------------ Fetch stats ------------------
-        const statsResponse = await fetch("${API_BASE}/api/stats");
+        const statsResponse = await fetch(`${API_BASE}/api/stats`);
         const statsText = await statsResponse.text();
         console.log("Stats response:", statsResponse.status, statsText);
 
@@ -111,7 +111,7 @@ const HomePage = () => {
 
         if (token) {
           try {
-            const profileResponse = await fetch("${API_BASE}/api/profile", {
+            const profileResponse = await fetch(`${API_BASE}/api/profile`, {
               headers: { Authorization: `Bearer ${token}` },
             });
 

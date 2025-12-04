@@ -17,11 +17,20 @@ dotenv.config();
 
 mongoose
   .connect(process.env.MONGODB_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log(err));
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173", // dev frontend
+      "https://code-snippet-rosy.vercel.app", // production frontend
+    ],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
 // Routes

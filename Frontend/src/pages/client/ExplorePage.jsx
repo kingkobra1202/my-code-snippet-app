@@ -19,7 +19,7 @@ const ExplorePage = () => {
       setError("");
       try {
         // Fetch languages
-        const langResponse = await fetch("${API_BASE}/api/languages");
+        const langResponse = await fetch(`${API_BASE}/api/languages`);
         const langData = await langResponse.json();
         if (!langResponse.ok)
           throw new Error(langData.error || "Failed to load languages");
@@ -27,7 +27,7 @@ const ExplorePage = () => {
 
         // Fetch categories
         const catResponse = await fetch(
-          "${API_BASE}/api/languages/react/categories"
+          `${API_BASE}/api/languages/react/categories`
         );
         const catData = await catResponse.json();
         if (!catResponse.ok)
