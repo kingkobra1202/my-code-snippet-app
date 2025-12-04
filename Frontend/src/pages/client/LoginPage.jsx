@@ -56,7 +56,7 @@ const LoginForm = ({
     setError("");
     setSuccess("");
     try {
-      const response = await fetch("${API_BASE}/api/login", {
+      const response = await fetch(`${API_BASE}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -153,7 +153,7 @@ const RegisterForm = ({
     setError("");
     setSuccess("");
     try {
-      const response = await fetch("${API_BASE}/api/register", {
+      const response = await fetch(`${API_BASE}/api/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
