@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const jwt = require("jsonwebtoken");
 
 const authRoutes = require("./routes/auth");
 const languageRoutes = require("./routes/languages");
@@ -14,6 +15,20 @@ const Snippet = require("./models/Snippet");
 const User = require("./models/User");
 
 dotenv.config();
+
+function verifyAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ error: "Unauthorized" });
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+}
 
 mongoose
   .connect(process.env.MONGODB_URI)
@@ -49,7 +64,7 @@ app.use("/api", categoryRoutes);
 app.use("/api", usersRoutes);
 app.use("/api", snippetsRoutes);
 
-app.get("/api/snippets/:snippetId", async (req, res) => {
+app.get("/api/snippets/:snippetId", verifyAuth, async (req, res) => {
   try {
     const { snippetId } = req.params;
     const snippet = await Snippet.findByIdAndUpdate(
