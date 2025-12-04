@@ -25,7 +25,11 @@ const SnippetDetailPage = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(`${API_BASE}/api/snippets/${snippetId}`);
+        const response = await fetch(`${API_BASE}/api/snippets/${snippetId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
 
         if (!response.ok) {
           throw new Error("Failed to fetch snippet details.");
@@ -43,6 +47,13 @@ const SnippetDetailPage = () => {
 
     fetchSnippet();
   }, [snippetId]);
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("token"); // or "isLoggedIn"
+    if (!isLoggedIn) {
+      navigate("/login"); // redirect to login page
+    }
+  }, [navigate]);
 
   const handleCopy = (code) => {
     navigator.clipboard.writeText(code).then(() => {
