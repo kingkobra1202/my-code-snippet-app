@@ -21,12 +21,21 @@ mongoose
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 const app = express();
+
+const allowedOrigins = [
+  "http://localhost:5173", // local dev
+  "https://my-code-snippet-app-five.vercel.app", // Vercel frontend
+];
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173", // dev frontend
-      "https://code-snippet-rosy.vercel.app", // production frontend
-    ],
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
